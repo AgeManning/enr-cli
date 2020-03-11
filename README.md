@@ -24,7 +24,7 @@ Features may be added in the future.
 This can be installed via cargo:
 
 ```bash
-$ cargo install enr-cli
+$ cargo install enr-cli --version 0.1.0-alpha
 ```
 
 ## Usage
