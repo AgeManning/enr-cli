@@ -1,0 +1,23 @@
+[package]
+authors = ["Age Manning <Age@AgeManning.com>"]
+edition = "2018"
+name = "enr-cli"
+version = "0.1.0-alpha"
+description = "Simple utility to read Ethereum Node Records (ENR)"
+readme = "./README.md"
+keywords = ["ethereum", "enr", "record", "EIP778", "node"]
+repository = "https://github.com/AgeManning/enr-cli"
+categories = ["cryptography::cryptocurrencies"]
+license = "MIT"
+exclude = [
+	".gitignore",
+	".github/*"
+]
+
+[[bin]]
+name = "enr-cli"
+path = "src/main.rs"
+
+[dependencies]
+enr = { version = "0.1.0-alpha.2", features = ["libp2p", "ed25519"] }
+clap = "2.33.0"
