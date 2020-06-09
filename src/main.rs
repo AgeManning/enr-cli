@@ -18,30 +18,36 @@
 //! Simple CLI for reading and modifying ENRs.
 //!
 //! USAGE:
-//!     enr-cli --enr <BASE64-ENR>
+//!     enr-cli <BASE64-ENR>
 //!
 //! FLAGS:
 //!     -h, --help       Prints help information
 //!     -V, --version    Prints version information
 //!
-//! OPTIONS:
-//!     -e, --enr <BASE64-ENR>    Reads a base64 ENR and prints common parameters.
+//! ARGS:
+//!     <BASE64-ENR>    Reads a base64 ENR and prints common parameters.
 //! ```
 //!
 //! ## Example
 //!
 //! ```bash
-//! $ enr-cli -e -Iu4QM-YJF2RRpMcZkFiWzMf2kRd1A5F1GIekPa4Sfi_v0DCLTDBfOMTMMWJhhawr1YLUPb5008CpnBKrgjY3sstjfgCgmlkgnY0gmlwhH8AAAGJc2VjcDI1NmsxoQP8u1uyQFyJYuQUTyA1raXKhSw1HhhxNUQ2VE52LNHWMIN0Y3CCIyiDdWRwgiMo
-//! ENR Read
-//! Sequence No: 2
-//! Node ID: 0x2ba1..acde
-//! IP: 127.0.0.1
-//! TCP port: 9000
-//! UDP: 9000
+//! $ enr-cli enr:-Ku4QJsxkOibTc9FXfBWYmcdMAGwH4bnOOFb4BlTHfMdx_f0WN-u4IUqZcQVP9iuEyoxipFs7-Qd_rH_0HfyOQitc7IBh2F0dG5ldHOIAAAAAAAAAACEZXRoMpD1pf1CAAAAAP__________gmlkgnY0gmlwhLAJM9iJc2VjcDI1NmsxoQL2RyM26TKZzqnUsyycHQB4jnyg6Wi79rwLXtaZXty06YN1ZHCCW8w
+//! ENR Read:
+//! Sequence No:1
+//! NodeId:0x3ab5..1447
+//! Libp2p PeerId:16Uiu2HAmC13Brucnz5qR8caKi8qKK6766PFoxsF5MzK2RvbTyBRr
+//! IP:176.9.51.216
+//! UDP Port:23500
+//! Known multiaddrs:
+//! /ip4/176.9.51.216/udp/23500/p2p/16Uiu2HAmC13Brucnz5qR8caKi8qKK6766PFoxsF5MzK2RvbTyBRr
 //! ```
 
 use clap::{App, Arg};
-use enr::{CombinedKey, Enr, EnrKey};
+use enr::{CombinedKey, Enr as EnrRaw};
+mod enr_ext;
+use enr_ext::EnrExt;
+
+pub type Enr = EnrRaw<CombinedKey>;
 
 fn main() {
     // Parse the CLI parameters.
@@ -51,8 +57,6 @@ fn main() {
         .about("Simple CLI for reading and modifying ENRs.")
         .arg(
             Arg::with_name("enr")
-                .short("e")
-                .long("enr")
                 .value_name("BASE64-ENR")
                 .allow_hyphen_values(true)
                 .required(true)
@@ -62,22 +66,30 @@ fn main() {
         .get_matches();
 
     let enr_base64 = matches.value_of("enr").expect("Must supply an ENR");
-    let enr = enr_base64.parse::<Enr<CombinedKey>>().unwrap();
+    let enr = enr_base64.parse::<Enr>().unwrap();
     print_enr(enr);
 }
 
-fn print_enr<K: EnrKey>(enr: Enr<K>) {
-    println!("ENR Read");
-    println!("Sequence No: {}", enr.seq());
-    println!("Node ID: {}", enr.node_id());
-
+fn print_enr(enr: Enr) {
+    println!("ENR Read:");
+    println!("Sequence No:{}", enr.seq());
+    println!("NodeId:{}", enr.node_id());
+    println!("Libp2p PeerId:{}", enr.peer_id());
     if let Some(ip) = enr.ip() {
-        println!("IP: {:?}", ip);
+        println!("IP:{:?}", ip);
     }
     if let Some(tcp) = enr.tcp() {
-        println!("TCP Port: {:?}", tcp);
+        println!("TCP Port:{}", tcp);
     }
     if let Some(udp) = enr.udp() {
-        println!("UDP Port: {:?}", udp);
+        println!("UDP Port:{}", udp);
+    }
+
+    let multiaddrs = enr.multiaddr();
+    if !multiaddrs.is_empty() {
+        println!("Known multiaddrs:");
+        for multiaddr in multiaddrs {
+            println!("{}", multiaddr);
+        }
     }
 }
