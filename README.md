@@ -24,7 +24,7 @@ Features may be added in the future.
 This can be installed via cargo:
 
 ```bash
-$ cargo install enr-cli --version 0.1.0-alpha
+$ cargo install enr-cli
 ```
 
 ## Usage
@@ -34,24 +34,27 @@ Sigma Prime <contact@sigmaprime.io>
 Simple CLI for reading and modifying ENRs.
 
 USAGE:
-    enr-cli --enr <BASE64-ENR>
+    enr-cli <BASE64-ENR>
 
 FLAGS:
     -h, --help       Prints help information
     -V, --version    Prints version information
 
-OPTIONS:
-    -e, --enr <BASE64-ENR>    Reads a base64 ENR and prints common parameters.
+ARGS:
+    <BASE64-ENR>    Reads a base64 ENR and prints common parameters.
 ```
 
 ## Example
 
 ```bash
-$ enr-cli -e -Iu4QM-YJF2RRpMcZkFiWzMf2kRd1A5F1GIekPa4Sfi_v0DCLTDBfOMTMMWJhhawr1YLUPb5008CpnBKrgjY3sstjfgCgmlkgnY0gmlwhH8AAAGJc2VjcDI1NmsxoQP8u1uyQFyJYuQUTyA1raXKhSw1HhhxNUQ2VE52LNHWMIN0Y3CCIyiDdWRwgiMo 
-ENR Read
-Sequence No: 2
-Node ID: 0x2ba1..acde
-IP: 127.0.0.1
-TCP port: 9000
-UDP port: 9000
+$ enr-cli enr:-Ku4QJsxkOibTc9FXfBWYmcdMAGwH4bnOOFb4BlTHfMdx_f0WN-u4IUqZcQVP9iuEyoxipFs7-Qd_rH_0HfyOQitc7IBh2F0dG5ldHOIAAAAAAAAAACEZXRoMpD1pf1CAAAAAP__________gmlkgnY0gmlwhLAJM9iJc2VjcDI1NmsxoQL2RyM26TKZzqnUsyycHQB4jnyg6Wi79rwLXtaZXty06YN1ZHCCW8w
+
+ENR Read:
+Sequence No:1
+NodeId:0x3ab5..1447
+Libp2p PeerId:16Uiu2HAmC13Brucnz5qR8caKi8qKK6766PFoxsF5MzK2RvbTyBRr
+IP:176.9.51.216
+UDP Port:23500
+Known multiaddrs:
+/ip4/176.9.51.216/udp/23500/p2p/16Uiu2HAmC13Brucnz5qR8caKi8qKK6766PFoxsF5MzK2RvbTyBRr
 ```
