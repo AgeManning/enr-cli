@@ -2,7 +2,7 @@
 authors = ["Age Manning <Age@AgeManning.com>"]
 edition = "2018"
 name = "enr-cli"
-version = "0.1.2"
+version = "0.2.0"
 description = "Simple utility to read Ethereum Node Records (ENR)"
 readme = "./README.md"
 keywords = ["ethereum", "enr", "record", "EIP778", "node"]
@@ -19,6 +19,9 @@ name = "enr-cli"
 path = "src/main.rs"
 
 [dependencies]
-enr = { version = "0.1.2", features = ["ed25519"] }
-clap = "2.33.1"
-libp2p-core = "0.20.1"
+enr = { version = "0.4.0", features = ["ed25519"] }
+clap = "2.33.3"
+libp2p-core = "0.24.0"
+eth2_ssz = { path = "./ssz/ssz" }
+eth2_ssz_derive = { path = "./ssz/ssz_derive" }
+hex = "0.4.2"
