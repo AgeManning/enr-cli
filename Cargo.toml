@@ -22,6 +22,6 @@ path = "src/main.rs"
 enr = { version = "0.4.0", features = ["ed25519"] }
 clap = "2.33.3"
 libp2p-core = "0.24.0"
-eth2_ssz = { path = "./ssz/ssz" }
-eth2_ssz_derive = { path = "./ssz/ssz_derive" }
 hex = "0.4.2"
+eth2_ssz = "0.1.2"
+eth2_ssz_derive = "0.1.0"
