@@ -45,14 +45,17 @@
 use clap::{App, Arg};
 use enr::{CombinedKey, Enr as EnrRaw};
 mod enr_ext;
+mod eth2_ext;
+
 use enr_ext::EnrExt;
+use eth2_ext::Eth2Enr;
 
 pub type Enr = EnrRaw<CombinedKey>;
 
 fn main() {
     // Parse the CLI parameters.
     let matches = App::new("enr-cli")
-        .version("0.1.0")
+        .version("0.2.0")
         .author("Sigma Prime <contact@sigmaprime.io>")
         .about("Simple CLI for reading and modifying ENRs.")
         .arg(
@@ -83,6 +86,15 @@ fn print_enr(enr: Enr) {
     }
     if let Some(udp) = enr.udp() {
         println!("UDP Port:{}", udp);
+    }
+
+    if let Ok(enr_fork_id) = enr.eth2() {
+        println!(
+            "Eth2 Field:\n\tFork digest: {}\n\tNext fork version: {}\n\tNext fork epoch: {}",
+            hex::encode(enr_fork_id.fork_digest),
+            hex::encode(enr_fork_id.next_fork_version),
+            enr_fork_id.next_fork_epoch
+        );
     }
 
     let multiaddrs = enr.multiaddr();
