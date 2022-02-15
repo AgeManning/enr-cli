@@ -15,7 +15,8 @@ Status]][Crates Link]
 
 ## Overview
 
-This is a simple CLI utility for reading base64 encoded ENRs.
+This is a simple CLI utility for reading base64 encoded ENRs as well as
+building new ones.
 
 Features may be added in the future.
 
@@ -31,23 +32,25 @@ $ cargo install enr-cli
 
 ```bash
 Sigma Prime <contact@sigmaprime.io>
-Simple CLI for reading and modifying ENRs.
+Simple CLI for reading and building ENRs.
 
 USAGE:
-    enr-cli <BASE64-ENR>
+    enr-cli [SUBCOMMAND]
 
-FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
+OPTIONS:
+    -h, --help       Print help information
+    -V, --version    Print version information
 
-ARGS:
-    <BASE64-ENR>    Reads a base64 ENR and prints common parameters.
+SUBCOMMANDS:
+    build    Builds an ENR
+    help     Print this message or the help of the given subcommand(s)
+    read     Reads and ENR
 ```
 
 ## Example
 
 ```bash
-$ enr-cli enr:-Ku4QJsxkOibTc9FXfBWYmcdMAGwH4bnOOFb4BlTHfMdx_f0WN-u4IUqZcQVP9iuEyoxipFs7-Qd_rH_0HfyOQitc7IBh2F0dG5ldHOIAAAAAAAAAACEZXRoMpD1pf1CAAAAAP__________gmlkgnY0gmlwhLAJM9iJc2VjcDI1NmsxoQL2RyM26TKZzqnUsyycHQB4jnyg6Wi79rwLXtaZXty06YN1ZHCCW8w
+$ enr-cli read enr:-Ku4QJsxkOibTc9FXfBWYmcdMAGwH4bnOOFb4BlTHfMdx_f0WN-u4IUqZcQVP9iuEyoxipFs7-Qd_rH_0HfyOQitc7IBh2F0dG5ldHOIAAAAAAAAAACEZXRoMpD1pf1CAAAAAP__________gmlkgnY0gmlwhLAJM9iJc2VjcDI1NmsxoQL2RyM26TKZzqnUsyycHQB4jnyg6Wi79rwLXtaZXty06YN1ZHCCW8w
 
 ENR Read:
 Sequence No:1

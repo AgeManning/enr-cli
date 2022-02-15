@@ -15,23 +15,25 @@
 //!
 //! ```bash
 //! Sigma Prime <contact@sigmaprime.io>
-//! Simple CLI for reading and modifying ENRs.
+//! Simple CLI for reading and building ENRs.
 //!
 //! USAGE:
-//!     enr-cli <BASE64-ENR>
+//!     enr-cli [SUBCOMMAND]
 //!
-//! FLAGS:
-//!     -h, --help       Prints help information
-//!     -V, --version    Prints version information
+//! OPTIONS:
+//!     -h, --help       Print help information
+//!     -V, --version    Print version information
 //!
-//! ARGS:
-//!     <BASE64-ENR>    Reads a base64 ENR and prints common parameters.
-//! ```
+//! SUBCOMMANDS:
+//!     build    Builds an ENR
+//!     help     Print this message or the help of the given subcommand(s)
+//!     read     Reads and ENR
+//!
 //!
 //! ## Example
 //!
 //! ```bash
-//! $ enr-cli enr:-Ku4QJsxkOibTc9FXfBWYmcdMAGwH4bnOOFb4BlTHfMdx_f0WN-u4IUqZcQVP9iuEyoxipFs7-Qd_rH_0HfyOQitc7IBh2F0dG5ldHOIAAAAAAAAAACEZXRoMpD1pf1CAAAAAP__________gmlkgnY0gmlwhLAJM9iJc2VjcDI1NmsxoQL2RyM26TKZzqnUsyycHQB4jnyg6Wi79rwLXtaZXty06YN1ZHCCW8w
+//! $ enr-cli read enr:-Ku4QJsxkOibTc9FXfBWYmcdMAGwH4bnOOFb4BlTHfMdx_f0WN-u4IUqZcQVP9iuEyoxipFs7-Qd_rH_0HfyOQitc7IBh2F0dG5ldHOIAAAAAAAAAACEZXRoMpD1pf1CAAAAAP__________gmlkgnY0gmlwhLAJM9iJc2VjcDI1NmsxoQL2RyM26TKZzqnUsyycHQB4jnyg6Wi79rwLXtaZXty06YN1ZHCCW8w
 //! ENR Read:
 //! Sequence No:1
 //! NodeId:0x3ab5..1447
@@ -45,10 +47,13 @@
 use clap::{App, Arg};
 use enr::{CombinedKey, Enr as EnrRaw};
 mod enr_ext;
-mod eth2_ext;
+pub mod eth2_ext;
+use ssz::Encode;
 
 use enr_ext::EnrExt;
 use eth2_ext::Eth2Enr;
+
+mod build;
 
 pub type Enr = EnrRaw<CombinedKey>;
 
@@ -57,23 +62,92 @@ fn main() {
     let matches = App::new("enr-cli")
         .version("0.2.0")
         .author("Sigma Prime <contact@sigmaprime.io>")
-        .about("Simple CLI for reading and modifying ENRs.")
-        .arg(
-            Arg::with_name("enr")
-                .value_name("BASE64-ENR")
-                .allow_hyphen_values(true)
-                .required(true)
-                .help("Reads a base64 ENR and prints common parameters.")
-                .takes_value(true),
-        )
+        .about("Simple CLI for reading and building ENRs.")
+        .subcommand(read())
+        .subcommand(build())
         .get_matches();
 
-    let enr_base64 = matches.value_of("enr").expect("Must supply an ENR");
-    let enr = enr_base64.parse::<Enr>().unwrap();
-    print_enr(enr);
+    // Handle the read logic
+    if let Some(read_matches) = matches.subcommand_matches("read") {
+        let enr_base64 = read_matches.value_of("enr").expect("Must supply an ENR");
+        let enr = enr_base64.parse::<Enr>().unwrap();
+        print_enr(enr);
+    } else if let Some(build_matches) = matches.subcommand_matches("build") {
+        // Handle the build ENR logic
+        if let Err(e) = build::build(build_matches) {
+            println!("Failed to build: {}", e);
+        }
+    }
 }
 
-fn print_enr(enr: Enr) {
+fn read<'a>() -> App<'a> {
+    App::new("read").about("Reads and ENR").arg(
+        Arg::new("enr")
+            .value_name("BASE64-ENR")
+            .allow_hyphen_values(true)
+            .required(true)
+            .help("Reads a base64 ENR and prints common parameters.")
+            .takes_value(true),
+    )
+}
+
+fn build<'a>() -> App<'a> {
+    App::new("build")
+        .about("Builds an ENR")
+        .arg(
+            Arg::new("private-key")
+                .short('k')
+                .long("private-key")
+                .allow_hyphen_values(true)
+                .help("A hex encoded private key to use for signing. If this or --key-file is not specified a random one will be generated")
+                .takes_value(true)
+        )
+        .arg(
+            Arg::new("key-file")
+                .short('j')
+                .long("key-file")
+                .allow_hyphen_values(true)
+                .help("Path to a key file that stores raw bytes of an ENR key. Example for lighthouse is in ~/.lighthouse/mainnet/beacon/network/key.dat.")
+                .takes_value(true)
+        )
+        .arg(
+            Arg::new("ip")
+                .long("ip")
+                .short('i')
+                .help("Set an ip address")
+                .takes_value(true)
+        )
+        .arg(
+            Arg::new("seq")
+                .long("seq-no")
+                .short('s')
+                .help("Set a sequence number")
+                .takes_value(true)
+        )
+        .arg(
+            Arg::new("tcp-port")
+                .long("tcp-port")
+                .short('p')
+                .help("Set an tcp port")
+                .takes_value(true)
+        )
+        .arg(
+            Arg::new("udp-port")
+                .long("udp-port")
+                .short('u')
+                .help("Set an udp port")
+                .takes_value(true)
+        )
+        .arg(
+            Arg::new("eth2")
+                .long("eth2")
+                .short('f')
+                .help("Set an eth2 fork field. Takes the raw SSZ bytes input")
+                .takes_value(true)
+        )
+}
+
+pub fn print_enr(enr: Enr) {
     println!("ENR Read:");
     println!("Sequence No:{}", enr.seq());
     println!("NodeId:{}", enr.node_id());
@@ -90,10 +164,11 @@ fn print_enr(enr: Enr) {
 
     if let Ok(enr_fork_id) = enr.eth2() {
         println!(
-            "Eth2 Field:\n\tFork digest: {}\n\tNext fork version: {}\n\tNext fork epoch: {}",
+            "Eth2 Field:\n\tFork digest: {}\n\tNext fork version: {}\n\tNext fork epoch: {}\n\tSSZ Bytes: {}",
             hex::encode(enr_fork_id.fork_digest),
             hex::encode(enr_fork_id.next_fork_version),
-            enr_fork_id.next_fork_epoch
+            enr_fork_id.next_fork_epoch,
+            hex::encode(enr_fork_id.as_ssz_bytes())
         );
     }
 
