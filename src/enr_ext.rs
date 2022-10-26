@@ -213,16 +213,18 @@ impl EnrExt for Enr {
                 None
             }
         } {
-            let tcp_port = tcp_port
-                .map(|port| port.to_string())
-                .unwrap_or_else(|| "".to_string());
-            let mut updated_enode = format!("{}@{}:{}", enode, ip, tcp_port);
-            if let Some(udp_port) = udp_port {
-                if udp_port.to_string() != tcp_port {
-                    updated_enode = format!("{}?discport={}", updated_enode, udp_port);
+            match (tcp_port, udp_port) {
+                (Some(tcp_port), Some(udp_port)) => {
+                    if tcp_port != udp_port {
+                        format!("{}@{}:{}?discport={}", enode, ip, tcp_port, udp_port)
+                    } else {
+                        format!("{}@{}:{}", enode, ip, tcp_port)
+                    }
                 }
+                (Some(tcp_port), None) => format!("{}@{}:{}", enode, ip, tcp_port),
+                (None, Some(udp_port)) => format!("{}@{}?discport={}", enode, ip, udp_port),
+                (None, None) => format!("{}@{}", enode, ip),
             }
-            updated_enode
         } else {
             // There was no IP address, so leave blank and just print the hex address
             enode
