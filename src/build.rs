@@ -9,9 +9,9 @@ use std::io::prelude::*;
 pub fn build(matches: &clap::ArgMatches) -> Result<(), &'static str> {
     // Generate or import a key for the ENR
     let key = {
-        let key_bytes = if let Some(priv_key) = matches.value_of("private-key") {
+        let key_bytes = if let Some(priv_key) = matches.get_one::<String>("private-key") {
             Some(hex::decode(priv_key).map_err(|_| "Invalid private key hex bytes")?)
-        } else if let Some(key_file) = matches.value_of("key-file") {
+        } else if let Some(key_file) = matches.get_one::<String>("key-file") {
             let mut file = File::open(key_file).map_err(|_| "Cannot find key-file")?;
             let mut key_bytes: Vec<u8> = Vec::with_capacity(36);
             file.read_to_end(&mut key_bytes)
@@ -38,24 +38,24 @@ pub fn build(matches: &clap::ArgMatches) -> Result<(), &'static str> {
 
     let mut enr_builder = enr::EnrBuilder::new("v4");
 
-    if let Some(seq) = matches.value_of("seq") {
+    if let Some(seq) = matches.get_one::<String>("seq") {
         enr_builder.seq(seq.parse::<u64>().map_err(|_| "Invalid sequence number")?);
     }
-    if let Some(ip) = matches.value_of("ip") {
+    if let Some(ip) = matches.get_one::<String>("ip") {
         enr_builder.ip(ip
             .parse::<std::net::IpAddr>()
             .map_err(|_| "Invalid ip address")?);
     }
 
-    if let Some(tcp) = matches.value_of("tcp-port") {
-        enr_builder.tcp(tcp.parse::<u16>().map_err(|_| "Invalid tcp port")?);
+    if let Some(tcp) = matches.get_one::<String>("tcp-port") {
+        enr_builder.tcp4(tcp.parse::<u16>().map_err(|_| "Invalid tcp port")?);
     }
 
-    if let Some(udp) = matches.value_of("udp-port") {
-        enr_builder.udp(udp.parse::<u16>().map_err(|_| "Invalid udp port")?);
+    if let Some(udp) = matches.get_one::<String>("udp-port") {
+        enr_builder.udp4(udp.parse::<u16>().map_err(|_| "Invalid udp port")?);
     }
 
-    if let Some(eth2) = matches.value_of("eth2") {
+    if let Some(eth2) = matches.get_one::<String>("eth2") {
         let eth2_bytes = hex::decode(eth2).map_err(|_| "Invalid eth2 hex bytes")?;
         EnrForkId::from_ssz_bytes(&eth2_bytes).map_err(|_| "Invalid eth2 ssz bytes")?;
 

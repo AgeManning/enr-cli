@@ -44,7 +44,7 @@
 //! /ip4/176.9.51.216/udp/23500/p2p/16Uiu2HAmC13Brucnz5qR8caKi8qKK6766PFoxsF5MzK2RvbTyBRr
 //! ```
 
-use clap::{App, Arg};
+use clap::{Arg, Command};
 use enr::{CombinedKey, Enr as EnrRaw};
 mod enr_ext;
 pub mod eth2_ext;
@@ -59,7 +59,7 @@ pub type Enr = EnrRaw<CombinedKey>;
 
 fn main() {
     // Parse the CLI parameters.
-    let matches = App::new("enr-cli")
+    let matches = Command::new("enr-cli")
         .version("0.2.0")
         .author("Sigma Prime <contact@sigmaprime.io>")
         .about("Simple CLI for reading and building ENRs.")
@@ -69,7 +69,9 @@ fn main() {
 
     // Handle the read logic
     if let Some(read_matches) = matches.subcommand_matches("read") {
-        let enr_base64 = read_matches.value_of("enr").expect("Must supply an ENR");
+        let enr_base64 = read_matches
+            .get_one::<String>("enr")
+            .expect("Must supply an ENR");
         let enr = enr_base64.parse::<Enr>().unwrap();
         print_enr(enr);
     } else if let Some(build_matches) = matches.subcommand_matches("build") {
@@ -80,19 +82,18 @@ fn main() {
     }
 }
 
-fn read<'a>() -> App<'a> {
-    App::new("read").about("Reads and ENR").arg(
+fn read() -> Command {
+    Command::new("read").about("Reads and ENR").arg(
         Arg::new("enr")
             .value_name("BASE64-ENR")
             .allow_hyphen_values(true)
             .required(true)
-            .help("Reads a base64 ENR and prints common parameters.")
-            .takes_value(true),
+            .help("Reads a base64 ENR and prints common parameters."),
     )
 }
 
-fn build<'a>() -> App<'a> {
-    App::new("build")
+fn build() -> Command {
+    Command::new("build")
         .about("Builds an ENR")
         .arg(
             Arg::new("private-key")
@@ -100,7 +101,6 @@ fn build<'a>() -> App<'a> {
                 .long("private-key")
                 .allow_hyphen_values(true)
                 .help("A hex encoded private key to use for signing. If this or --key-file is not specified a random one will be generated")
-                .takes_value(true)
         )
         .arg(
             Arg::new("key-file")
@@ -108,58 +108,62 @@ fn build<'a>() -> App<'a> {
                 .long("key-file")
                 .allow_hyphen_values(true)
                 .help("Path to a key file that stores raw bytes of an ENR key. Example for lighthouse is in ~/.lighthouse/mainnet/beacon/network/key.dat.")
-                .takes_value(true)
         )
         .arg(
             Arg::new("ip")
                 .long("ip")
                 .short('i')
                 .help("Set an ip address")
-                .takes_value(true)
         )
         .arg(
             Arg::new("seq")
                 .long("seq-no")
                 .short('s')
                 .help("Set a sequence number")
-                .takes_value(true)
         )
         .arg(
             Arg::new("tcp-port")
                 .long("tcp-port")
                 .short('p')
                 .help("Set an tcp port")
-                .takes_value(true)
         )
         .arg(
             Arg::new("udp-port")
                 .long("udp-port")
                 .short('u')
                 .help("Set an udp port")
-                .takes_value(true)
         )
         .arg(
             Arg::new("eth2")
                 .long("eth2")
                 .short('f')
                 .help("Set an eth2 fork field. Takes the raw SSZ bytes input")
-                .takes_value(true)
         )
 }
 
 pub fn print_enr(enr: Enr) {
     println!("ENR Read:");
     println!("Sequence No:{}", enr.seq());
-    println!("NodeId:{}", enr.node_id());
-    println!("Libp2p PeerId:{}", enr.peer_id());
-    if let Some(ip) = enr.ip() {
+    println!("NodeId: {}", hex::encode(enr.node_id().raw()));
+    println!("EnodeId: {}", enr.enode_id());
+    println!("Libp2p PeerId: {}", enr.peer_id());
+    if let Some(ip) = enr.ip4() {
         println!("IP:{:?}", ip);
     }
-    if let Some(tcp) = enr.tcp() {
+    if let Some(ip) = enr.ip6() {
+        println!("IP6:{:?}", ip);
+    }
+    if let Some(tcp) = enr.tcp4() {
         println!("TCP Port:{}", tcp);
     }
-    if let Some(udp) = enr.udp() {
+    if let Some(tcp) = enr.tcp6() {
+        println!("TCP6 Port:{}", tcp);
+    }
+    if let Some(udp) = enr.udp4() {
         println!("UDP Port:{}", udp);
+    }
+    if let Some(udp) = enr.udp6() {
+        println!("UDP6 Port:{}", udp);
     }
 
     if let Ok(enr_fork_id) = enr.eth2() {

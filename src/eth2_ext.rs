@@ -7,7 +7,7 @@ pub const ETH2_ENR_KEY: &str = "eth2";
 /// The ENR field specifying the subnet bitfield.
 pub const BITFIELD_ENR_KEY: &str = "attnets";
 
-#[derive(Debug, Clone, PartialEq, Default, Encode, Decode)]
+#[derive(Debug, Clone, PartialEq, Default, Encode, Decode, Eq)]
 pub struct EnrForkId {
     pub fork_digest: [u8; 4],
     pub next_fork_version: [u8; 4],

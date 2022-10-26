@@ -1,6 +1,7 @@
 //! ENR extension trait to support libp2p integration.
 use enr::{CombinedKey, CombinedPublicKey};
 use libp2p_core::{identity::Keypair, identity::PublicKey, multiaddr::Protocol, Multiaddr, PeerId};
+use std::net::IpAddr;
 use tiny_keccak::{Hasher, Keccak};
 
 pub type Enr = enr::Enr<enr::CombinedKey>;
@@ -25,6 +26,9 @@ pub trait EnrExt {
 
     /// Returns any multiaddrs that contain the TCP protocol.
     fn multiaddr_tcp(&self) -> Vec<Multiaddr>;
+
+    /// Returns the ENODE address of the ENR.
+    fn enode_id(&self) -> String;
 }
 
 /// Extend ENR CombinedPublicKey for libp2p types.
@@ -49,14 +53,14 @@ impl EnrExt for Enr {
     /// The vector remains empty if these fields are not defined.
     fn multiaddr(&self) -> Vec<Multiaddr> {
         let mut multiaddrs: Vec<Multiaddr> = Vec::new();
-        if let Some(ip) = self.ip() {
-            if let Some(udp) = self.udp() {
+        if let Some(ip) = self.ip4() {
+            if let Some(udp) = self.udp4() {
                 let mut multiaddr: Multiaddr = ip.into();
                 multiaddr.push(Protocol::Udp(udp));
                 multiaddrs.push(multiaddr);
             }
 
-            if let Some(tcp) = self.tcp() {
+            if let Some(tcp) = self.tcp4() {
                 let mut multiaddr: Multiaddr = ip.into();
                 multiaddr.push(Protocol::Tcp(tcp));
                 multiaddrs.push(multiaddr);
@@ -85,15 +89,15 @@ impl EnrExt for Enr {
     fn multiaddr_p2p(&self) -> Vec<Multiaddr> {
         let peer_id = self.peer_id();
         let mut multiaddrs: Vec<Multiaddr> = Vec::new();
-        if let Some(ip) = self.ip() {
-            if let Some(udp) = self.udp() {
+        if let Some(ip) = self.ip4() {
+            if let Some(udp) = self.udp4() {
                 let mut multiaddr: Multiaddr = ip.into();
                 multiaddr.push(Protocol::Udp(udp));
                 multiaddr.push(Protocol::P2p(peer_id.into()));
                 multiaddrs.push(multiaddr);
             }
 
-            if let Some(tcp) = self.tcp() {
+            if let Some(tcp) = self.tcp4() {
                 let mut multiaddr: Multiaddr = ip.into();
                 multiaddr.push(Protocol::Tcp(tcp));
                 multiaddr.push(Protocol::P2p(peer_id.into()));
@@ -125,8 +129,8 @@ impl EnrExt for Enr {
     fn multiaddr_p2p_tcp(&self) -> Vec<Multiaddr> {
         let peer_id = self.peer_id();
         let mut multiaddrs: Vec<Multiaddr> = Vec::new();
-        if let Some(ip) = self.ip() {
-            if let Some(tcp) = self.tcp() {
+        if let Some(ip) = self.ip4() {
+            if let Some(tcp) = self.tcp4() {
                 let mut multiaddr: Multiaddr = ip.into();
                 multiaddr.push(Protocol::Tcp(tcp));
                 multiaddr.push(Protocol::P2p(peer_id.into()));
@@ -151,8 +155,8 @@ impl EnrExt for Enr {
     fn multiaddr_p2p_udp(&self) -> Vec<Multiaddr> {
         let peer_id = self.peer_id();
         let mut multiaddrs: Vec<Multiaddr> = Vec::new();
-        if let Some(ip) = self.ip() {
-            if let Some(udp) = self.udp() {
+        if let Some(ip) = self.ip4() {
+            if let Some(udp) = self.udp4() {
                 let mut multiaddr: Multiaddr = ip.into();
                 multiaddr.push(Protocol::Udp(udp));
                 multiaddr.push(Protocol::P2p(peer_id.into()));
@@ -174,8 +178,8 @@ impl EnrExt for Enr {
     /// The vector remains empty if these fields are not defined.
     fn multiaddr_tcp(&self) -> Vec<Multiaddr> {
         let mut multiaddrs: Vec<Multiaddr> = Vec::new();
-        if let Some(ip) = self.ip() {
-            if let Some(tcp) = self.tcp() {
+        if let Some(ip) = self.ip4() {
+            if let Some(tcp) = self.tcp4() {
                 let mut multiaddr: Multiaddr = ip.into();
                 multiaddr.push(Protocol::Tcp(tcp));
                 multiaddrs.push(multiaddr);
@@ -189,6 +193,40 @@ impl EnrExt for Enr {
             }
         }
         multiaddrs
+    }
+
+    /// Returns the ENODE ID of the ENR as a string to be printed
+    fn enode_id(&self) -> String {
+        let node_id = self.node_id();
+        let enode = format!("enode://{}", hex::encode(node_id.raw()));
+        // Preference ipv4 over ipv6
+        if let Some((ip, tcp_port, udp_port)) = {
+            if let Some(ip) = self.ip4() {
+                let tcp_port = self.tcp4();
+                let udp_port = self.udp4();
+                Some((IpAddr::from(ip), tcp_port, udp_port))
+            } else if let Some(ip) = self.ip6() {
+                let tcp_port = self.tcp4();
+                let udp_port = self.udp4();
+                Some((IpAddr::from(ip), tcp_port, udp_port))
+            } else {
+                None
+            }
+        } {
+            let tcp_port = tcp_port
+                .map(|port| port.to_string())
+                .unwrap_or_else(|| "".to_string());
+            let mut updated_enode = format!("{}@{}:{}", enode, ip, tcp_port);
+            if let Some(udp_port) = udp_port {
+                if udp_port.to_string() != tcp_port {
+                    updated_enode = format!("{}?discport={}", updated_enode, udp_port);
+                }
+            }
+            updated_enode
+        } else {
+            // There was no IP address, so leave blank and just print the hex address
+            enode
+        }
     }
 }
 
