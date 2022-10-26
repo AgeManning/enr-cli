@@ -216,9 +216,11 @@ impl EnrExt for Enr {
             let tcp_port = tcp_port
                 .map(|port| port.to_string())
                 .unwrap_or_else(|| "".to_string());
-            let mut updated_enode = format!("{}:{}:{}", enode, ip, tcp_port);
+            let mut updated_enode = format!("{}@{}:{}", enode, ip, tcp_port);
             if let Some(udp_port) = udp_port {
-                updated_enode = format!("{}?discport={}", updated_enode, udp_port);
+                if udp_port.to_string() != tcp_port {
+                    updated_enode = format!("{}?discport={}", updated_enode, udp_port);
+                }
             }
             updated_enode
         } else {
