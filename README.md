@@ -34,17 +34,16 @@ $ cargo install enr-cli
 Sigma Prime <contact@sigmaprime.io>
 Simple CLI for reading and building ENRs.
 
-USAGE:
-    enr-cli [SUBCOMMAND]
+Usage: enr-cli [COMMAND]
 
-OPTIONS:
-    -h, --help       Print help information
-    -V, --version    Print version information
+Commands:
+  read   Reads and ENR
+  build  Builds an ENR
+  help   Print this message or the help of the given subcommand(s)
 
-SUBCOMMANDS:
-    build    Builds an ENR
-    help     Print this message or the help of the given subcommand(s)
-    read     Reads and ENR
+Options:
+  -h, --help     Print help information
+  -V, --version  Print version information
 ```
 
 ## Example
@@ -54,10 +53,16 @@ $ enr-cli read enr:-Ku4QJsxkOibTc9FXfBWYmcdMAGwH4bnOOFb4BlTHfMdx_f0WN-u4IUqZcQVP
 
 ENR Read:
 Sequence No:1
-NodeId:0x3ab5..1447
-Libp2p PeerId:16Uiu2HAmC13Brucnz5qR8caKi8qKK6766PFoxsF5MzK2RvbTyBRr
+NodeId: 3ab5eb24b287e4fc130fe25ed7424626fd9b53c5068b9778f42d1c7bb0831447
+EnodeId: enode://3ab5eb24b287e4fc130fe25ed7424626fd9b53c5068b9778f42d1c7bb0831447@176.9.51.216:?discport=23500
+Libp2p PeerId: 16Uiu2HAmC13Brucnz5qR8caKi8qKK6766PFoxsF5MzK2RvbTyBRr
 IP:176.9.51.216
 UDP Port:23500
+Eth2 Field:
+	Fork digest: f5a5fd42
+	Next fork version: 00000000
+	Next fork epoch: 18446744073709551615
+	SSZ Bytes: f5a5fd4200000000ffffffffffffffff
 Known multiaddrs:
-/ip4/176.9.51.216/udp/23500/p2p/16Uiu2HAmC13Brucnz5qR8caKi8qKK6766PFoxsF5MzK2RvbTyBRr
+/ip4/176.9.51.216/udp/23500
 ```
