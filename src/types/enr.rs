@@ -1,46 +1,28 @@
 //! ENR extension trait to support libp2p integration.
 use enr::{CombinedKey, CombinedPublicKey};
-use libp2p_core::{identity::Keypair, identity::PublicKey, multiaddr::Protocol, Multiaddr, PeerId};
+use libp2p_core::{identity::Keypair, multiaddr::Protocol, Multiaddr, PeerId};
+use ssz::Decode;
 use std::net::IpAddr;
-use tiny_keccak::{Hasher, Keccak};
 
+// Import all extensions
+use crate::extensions::prelude::*;
+
+use crate::types::enr_fork_id::*;
+
+/// Extension type for ENR's.
 pub type Enr = enr::Enr<enr::CombinedKey>;
 
-/// Extend ENR for libp2p types.
-pub trait EnrExt {
-    /// The libp2p `PeerId` for the record.
-    fn peer_id(&self) -> PeerId;
+/// Extend ENR for eth2 types.
+impl Eth2Enr for Enr {
+    fn bitfield(&self) -> Option<Vec<u8>> {
+        self.get(BITFIELD_ENR_KEY).map(|v| v.to_vec())
+    }
 
-    /// Returns a list of multiaddrs if the ENR has an `ip` and either a `tcp` or `udp` key **or** an `ip6` and either a `tcp6` or `udp6`.
-    /// The vector remains empty if these fields are not defined.
-    fn multiaddr(&self) -> Vec<Multiaddr>;
+    fn eth2(&self) -> Result<EnrForkId, &'static str> {
+        let eth2_bytes = self.get(ETH2_ENR_KEY).ok_or("ENR has no eth2 field")?;
 
-    /// Returns a list of multiaddrs with the `PeerId` prepended.
-    fn multiaddr_p2p(&self) -> Vec<Multiaddr>;
-
-    /// Returns any multiaddrs that contain the TCP protocol with the `PeerId` prepended.
-    fn multiaddr_p2p_tcp(&self) -> Vec<Multiaddr>;
-
-    /// Returns any multiaddrs that contain the UDP protocol with the `PeerId` prepended.
-    fn multiaddr_p2p_udp(&self) -> Vec<Multiaddr>;
-
-    /// Returns any multiaddrs that contain the TCP protocol.
-    fn multiaddr_tcp(&self) -> Vec<Multiaddr>;
-
-    /// Returns the ENODE address of the ENR.
-    fn enode_id(&self) -> String;
-}
-
-/// Extend ENR CombinedPublicKey for libp2p types.
-pub trait CombinedKeyPublicExt {
-    /// Converts the publickey into a peer id, without consuming the key.
-    fn as_peer_id(&self) -> PeerId;
-}
-
-/// Extend ENR CombinedKey for conversion to libp2p keys.
-pub trait CombinedKeyExt {
-    /// Converts a libp2p key into an ENR combined key.
-    fn from_libp2p(key: &libp2p_core::identity::Keypair) -> Result<CombinedKey, &'static str>;
+        EnrForkId::from_ssz_bytes(eth2_bytes).map_err(|_| "Could not decode EnrForkId")
+    }
 }
 
 impl EnrExt for Enr {
@@ -273,38 +255,5 @@ impl CombinedKeyExt for CombinedKey {
             }
             _ => Err("ENR: Unsupported libp2p key type"),
         }
-    }
-}
-
-// helper function to convert a peer_id to a node_id. This is only possible for secp256k1/ed25519 libp2p
-// peer_ids
-pub fn _peer_id_to_node_id(peer_id: &PeerId) -> Result<enr::NodeId, String> {
-    // A libp2p peer id byte representation should be 2 length bytes + 4 protobuf bytes + compressed pk bytes
-    // if generated from a PublicKey with Identity multihash.
-    let pk_bytes = &peer_id.to_bytes()[2..];
-
-    match PublicKey::from_protobuf_encoding(pk_bytes).map_err(|e| {
-        format!(
-            " Cannot parse libp2p public key public key from peer id: {}",
-            e
-        )
-    })? {
-        PublicKey::Secp256k1(pk) => {
-            let uncompressed_key_bytes = &pk.encode_uncompressed()[1..];
-            let mut output = [0_u8; 32];
-            let mut hasher = Keccak::v256();
-            hasher.update(uncompressed_key_bytes);
-            hasher.finalize(&mut output);
-            Ok(enr::NodeId::parse(&output).expect("Must be correct length"))
-        }
-        PublicKey::Ed25519(pk) => {
-            let uncompressed_key_bytes = pk.encode();
-            let mut output = [0_u8; 32];
-            let mut hasher = Keccak::v256();
-            hasher.update(&uncompressed_key_bytes);
-            hasher.finalize(&mut output);
-            Ok(enr::NodeId::parse(&output).expect("Must be correct length"))
-        }
-        _ => Err("Unsupported public key".into()),
     }
 }
