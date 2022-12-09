@@ -14,15 +14,19 @@ exclude = [
 	".github/*"
 ]
 
-[[bin]]
-name = "enr-cli"
-path = "src/main.rs"
-
 [dependencies]
-enr = { version = "0.7.0", features = ["ed25519"] }
-clap = "4.0.18"
 libp2p-core = "0.36.0"
+enr = { version = "0.7.0", features = ["ed25519"] }
+clap = { version = "4.0.29", features = ["derive"] }
 hex = "0.4.3"
 eth2_ssz = "0.4.0"
 eth2_ssz_derive = "0.3.0"
 tiny-keccak = "2.0.2"
+
+eyre = "0.6.8"
+log = "0.4"
+simple_logger = "4.0"
+
+[[bin]]
+name = "enr-cli"
+path = "src/main.rs"
