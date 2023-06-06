@@ -148,22 +148,22 @@ pub fn print_enr(enr: Enr) {
     println!("EnodeId: {}", enr.enode_id());
     println!("Libp2p PeerId: {}", enr.peer_id());
     if let Some(ip) = enr.ip4() {
-        println!("IP:{:?}", ip);
+        println!("ipv4:{:?}", ip);
     }
     if let Some(ip) = enr.ip6() {
-        println!("IP6:{:?}", ip);
+        println!("ipv6:{:?}", ip);
     }
     if let Some(tcp) = enr.tcp4() {
-        println!("TCP Port:{}", tcp);
+        println!("v4_tcp:{}", tcp);
     }
     if let Some(tcp) = enr.tcp6() {
-        println!("TCP6 Port:{}", tcp);
+        println!("v6_tcp:{}", tcp);
     }
     if let Some(udp) = enr.udp4() {
-        println!("UDP Port:{}", udp);
+        println!("v4_udp:{}", udp);
     }
     if let Some(udp) = enr.udp6() {
-        println!("UDP6 Port:{}", udp);
+        println!("v6_udp:{}", udp);
     }
 
     if let Ok(enr_fork_id) = enr.eth2() {
