@@ -19,7 +19,7 @@ name = "enr-cli"
 path = "src/main.rs"
 
 [dependencies]
-enr = { version = "0.7.0", features = ["ed25519"] }
+enr = { version = "0.8.1", features = ["ed25519"] }
 clap = "4.0.18"
 libp2p-core = "0.36.0"
 hex = "0.4.3"

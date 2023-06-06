@@ -1,6 +1,7 @@
 //! ENR extension trait to support libp2p integration.
 use enr::{CombinedKey, CombinedPublicKey};
 use libp2p_core::{identity::Keypair, identity::PublicKey, multiaddr::Protocol, Multiaddr, PeerId};
+use std::convert::TryInto;
 use std::net::IpAddr;
 use tiny_keccak::{Hasher, Keccak};
 
@@ -239,7 +240,7 @@ impl CombinedKeyPublicExt for CombinedPublicKey {
     fn as_peer_id(&self) -> PeerId {
         match self {
             Self::Secp256k1(pk) => {
-                let pk_bytes = pk.to_bytes();
+                let pk_bytes = pk.to_sec1_bytes();
                 let libp2p_pk = libp2p_core::PublicKey::Secp256k1(
                     libp2p_core::identity::secp256k1::PublicKey::decode(&pk_bytes)
                         .expect("valid public key"),
@@ -262,13 +263,16 @@ impl CombinedKeyExt for CombinedKey {
     fn from_libp2p(key: &libp2p_core::identity::Keypair) -> Result<CombinedKey, &'static str> {
         match key {
             Keypair::Secp256k1(key) => {
-                let secret = enr::k256::ecdsa::SigningKey::from_bytes(&key.secret().to_bytes())
+                let secret = enr::k256::ecdsa::SigningKey::from_slice(&key.secret().to_bytes())
                     .expect("libp2p key must be valid");
                 Ok(CombinedKey::Secp256k1(secret))
             }
             Keypair::Ed25519(key) => {
-                let ed_keypair = enr::ed25519_dalek::SecretKey::from_bytes(&key.encode()[..32])
-                    .expect("libp2p key must be valid");
+                let ed_keypair = enr::ed25519_dalek::SigningKey::from_bytes(
+                    &(key.encode()[..32])
+                        .try_into()
+                        .expect("libp2p key must be valid"),
+                );
                 Ok(CombinedKey::from(ed_keypair))
             }
             _ => Err("ENR: Unsupported libp2p key type"),
