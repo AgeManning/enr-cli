@@ -165,6 +165,12 @@ pub fn print_enr(enr: Enr) {
     if let Some(udp) = enr.udp6() {
         println!("v6_udp:{}", udp);
     }
+    if let Some(udp) = enr.quic4() {
+        println!("v4_quic:{}", udp);
+    }
+    if let Some(udp) = enr.quic6() {
+        println!("v6_quic:{}", udp);
+    }
 
     if let Ok(enr_fork_id) = enr.eth2() {
         println!(
