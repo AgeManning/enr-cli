@@ -26,4 +26,5 @@ hex = "0.4.3"
 eth2_ssz = "0.4.0"
 eth2_ssz_derive = "0.3.0"
 tiny-keccak = "2.0.2"
-libp2p-identity = { version = "0.2.3", features = ['ecdsa', 'ed25519', 'peerid', 'secp256k1'] }
+# TODO: remove 'rand' feature when <https://github.com/libp2p/rust-libp2p/pull/5212> is merged
+libp2p-identity = { version = "0.2.8", features = ['ecdsa', 'ed25519', 'peerid', 'secp256k1', 'rand'] }
