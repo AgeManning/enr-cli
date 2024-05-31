@@ -1,4 +1,5 @@
 use crate::Enr;
+use bytes::Bytes;
 use ssz::Decode;
 use ssz_derive::{Decode, Encode};
 
@@ -23,12 +24,17 @@ pub trait Eth2Enr {
 
 impl Eth2Enr for Enr {
     fn bitfield(&self) -> Option<Vec<u8>> {
-        self.get(BITFIELD_ENR_KEY).map(|v| v.to_vec())
+        self.get_decodable(BITFIELD_ENR_KEY)?
+            .ok()
+            .map(|v: Bytes| v.to_vec())
     }
 
     fn eth2(&self) -> Result<EnrForkId, &'static str> {
-        let eth2_bytes = self.get(ETH2_ENR_KEY).ok_or("ENR has no eth2 field")?;
+        let eth2_bytes = self
+            .get_decodable::<Bytes>(ETH2_ENR_KEY)
+            .ok_or("ENR has no eth2 field")?
+            .map_err(|_| "Could not decode fork id")?;
 
-        EnrForkId::from_ssz_bytes(eth2_bytes).map_err(|_| "Could not decode EnrForkId")
+        EnrForkId::from_ssz_bytes(&eth2_bytes).map_err(|_| "Could not decode EnrForkId")
     }
 }

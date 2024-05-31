@@ -12,6 +12,7 @@ pub const QUIC_ENR_KEY: &str = "quic";
 pub const QUIC6_ENR_KEY: &str = "quic6";
 
 /// Extend ENR for libp2p types.
+#[allow(dead_code)]
 pub trait EnrExt {
     /// The libp2p `PeerId` for the record.
     fn peer_id(&self) -> PeerId;
@@ -52,6 +53,7 @@ pub trait CombinedKeyPublicExt {
 }
 
 /// Extend ENR CombinedKey for conversion to libp2p keys.
+#[allow(dead_code)]
 pub trait CombinedKeyExt {
     /// Converts a libp2p key into an ENR combined key.
     fn from_libp2p(key: Keypair) -> Result<CombinedKey, &'static str>;
