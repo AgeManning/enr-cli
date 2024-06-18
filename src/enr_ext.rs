@@ -352,6 +352,7 @@ impl CombinedKeyExt for CombinedKey {
 // peer_ids
 #[cfg(test)]
 pub fn peer_id_to_node_id(peer_id: &PeerId) -> Result<enr::NodeId, String> {
+    use tiny_keccak::{Hasher, Keccak};
     // A libp2p peer id byte representation should be 2 length bytes + 4 protobuf bytes + compressed pk bytes
     // if generated from a PublicKey with Identity multihash.
     let pk_bytes = &peer_id.to_bytes()[2..];
@@ -409,7 +410,7 @@ mod tests {
         let libp2p_kp: Keypair = secp256k1_kp.into();
         let peer_id = libp2p_kp.public().to_peer_id();
 
-        let enr = enr::EnrBuilder::new("v4").build(&secret_key).unwrap();
+        let enr = enr::Builder::default().build(&secret_key).unwrap();
         let node_id = peer_id_to_node_id(&peer_id).unwrap();
 
         assert_eq!(enr.node_id(), node_id);
@@ -427,7 +428,7 @@ mod tests {
         let libp2p_kp: Keypair = secp256k1_kp.into();
         let peer_id = libp2p_kp.public().to_peer_id();
 
-        let enr = enr::EnrBuilder::new("v4").build(&secret_key).unwrap();
+        let enr = enr::Builder::default().build(&secret_key).unwrap();
         let node_id = peer_id_to_node_id(&peer_id).unwrap();
 
         assert_eq!(enr.node_id(), node_id);
