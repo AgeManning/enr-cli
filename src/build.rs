@@ -36,7 +36,7 @@ pub fn build(matches: &clap::ArgMatches) -> Result<(), &'static str> {
 
     // Build the ENR:
 
-    let mut enr_builder = enr::EnrBuilder::new("v4");
+    let mut enr_builder = enr::Builder::default();
 
     if let Some(seq) = matches.get_one::<String>("seq") {
         enr_builder.seq(seq.parse::<u64>().map_err(|_| "Invalid sequence number")?);
