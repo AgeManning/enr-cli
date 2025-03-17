@@ -27,7 +27,7 @@
 //! SUBCOMMANDS:
 //!     build    Builds an ENR
 //!     help     Print this message or the help of the given subcommand(s)
-//!     read     Reads and ENR
+//!     read     Reads an ENR
 //!
 //!
 //! ## Example
@@ -83,7 +83,7 @@ fn main() {
 }
 
 fn read() -> Command {
-    Command::new("read").about("Reads and ENR").arg(
+    Command::new("read").about("Reads an ENR").arg(
         Arg::new("enr")
             .value_name("BASE64-ENR")
             .allow_hyphen_values(true)
@@ -113,8 +113,14 @@ fn build() -> Command {
             Arg::new("ip")
                 .long("ip")
                 .short('i')
-                .help("Set an ip address")
+                .help("Set an IPv4 address")
         )
+        .arg(
+            Arg::new("ip6")
+                .long("ip6")
+                .short('I')
+                .help("Set an IPv6 address")
+                )
         .arg(
             Arg::new("seq")
                 .long("seq-no")
@@ -125,13 +131,35 @@ fn build() -> Command {
             Arg::new("tcp-port")
                 .long("tcp-port")
                 .short('p')
-                .help("Set an tcp port")
+                .help("Set a tcp port")
+        )
+        .arg(
+            Arg::new("tcp6-port")
+                .long("tcp6-port")
+                .help("Set a TCP port for IPv6")
         )
         .arg(
             Arg::new("udp-port")
                 .long("udp-port")
                 .short('u')
                 .help("Set an udp port")
+        )
+        .arg(
+            Arg::new("udp6-port")
+                .long("udp6-port")
+                .help("Set a UDP port for IPv6")
+        )
+        .arg(
+            Arg::new("quic-port")
+                .long("quic-port")
+                .short('q')
+                .help("Set a quic port")
+        )
+        .arg(
+            Arg::new("quic6-port")
+                .long("quic6-port")
+                .short('Q')
+                .help("Set an IPv6 QUIC port")
         )
         .arg(
             Arg::new("eth2")
