@@ -42,7 +42,7 @@ pub fn build(matches: &clap::ArgMatches) -> Result<(), &'static str> {
     if let Some(seq) = matches.get_one::<String>("seq") {
         enr_builder.seq(seq.parse::<u64>().map_err(|_| "Invalid sequence number")?);
     }
-    if let Some(ip) = matches.get_one::<String>("ip4") {
+    if let Some(ip) = matches.get_one::<String>("ip") {
         let ipv4 = ip.parse::<Ipv4Addr>().map_err(|_| "Invalid IPv4 address")?;
         enr_builder.ip4(ipv4);
     }
