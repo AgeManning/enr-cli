@@ -6,6 +6,7 @@ use enr::CombinedKey;
 use ssz::Decode;
 use std::fs::File;
 use std::io::prelude::*;
+use std::net::{Ipv4Addr, Ipv6Addr};
 
 pub fn build(matches: &clap::ArgMatches) -> Result<(), &'static str> {
     // Generate or import a key for the ENR
@@ -36,18 +37,22 @@ pub fn build(matches: &clap::ArgMatches) -> Result<(), &'static str> {
     };
 
     // Build the ENR:
-
     let mut enr_builder = enr::Builder::default();
 
     if let Some(seq) = matches.get_one::<String>("seq") {
         enr_builder.seq(seq.parse::<u64>().map_err(|_| "Invalid sequence number")?);
     }
-    if let Some(ips) = matches.get_many::<String>("ip") {
-        for ip in ips {
-            enr_builder.ip(ip
-                .parse::<std::net::IpAddr>()
-                .map_err(|_| "Invalid ip address")?);
-        }
+    if let Some(ip4) = matches.get_one::<String>("ip4") {
+        let ipv4 = ip4
+            .parse::<Ipv4Addr>()
+            .map_err(|_| "Invalid IPv4 address")?;
+        enr_builder.ip4(ipv4);
+    }
+    if let Some(ip6) = matches.get_one::<String>("ip6") {
+        let ipv6 = ip6
+            .parse::<Ipv6Addr>()
+            .map_err(|_| "Invalid IPv6 address")?;
+        enr_builder.ip6(ipv6);
     }
 
     if let Some(tcp) = matches.get_one::<String>("tcp-port") {
@@ -73,7 +78,6 @@ pub fn build(matches: &clap::ArgMatches) -> Result<(), &'static str> {
                 .to_be_bytes(),
         );
     }
-
     if let Some(quic6) = matches.get_one::<String>("quic6-port") {
         enr_builder.add_value(
             QUIC6_ENR_KEY,

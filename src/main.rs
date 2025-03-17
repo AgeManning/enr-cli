@@ -110,12 +110,17 @@ fn build() -> Command {
                 .help("Path to a key file that stores raw bytes of an ENR key. Example for lighthouse is in ~/.lighthouse/mainnet/beacon/network/key.dat.")
         )
         .arg(
-            Arg::new("ip")
-                .long("ip")
+            Arg::new("ip4")
+                .long("ip4")
                 .short('i')
-                .action(clap::ArgAction::Append)
-                .help("Set an IPv4 or IPv6 address (can be used multiple times)")
+                .help("Set an IPv4 address")
         )
+        .arg(
+            Arg::new("ip6")
+                .long("ip6")
+                .short('I')
+                .help("Set an IPv6 address")
+                )
         .arg(
             Arg::new("seq")
                 .long("seq-no")
