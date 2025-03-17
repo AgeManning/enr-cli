@@ -83,7 +83,7 @@ fn main() {
 }
 
 fn read() -> Command {
-    Command::new("read").about("Reads and ENR").arg(
+    Command::new("read").about("Reads an ENR").arg(
         Arg::new("enr")
             .value_name("BASE64-ENR")
             .allow_hyphen_values(true)
@@ -110,8 +110,8 @@ fn build() -> Command {
                 .help("Path to a key file that stores raw bytes of an ENR key. Example for lighthouse is in ~/.lighthouse/mainnet/beacon/network/key.dat.")
         )
         .arg(
-            Arg::new("ip4")
-                .long("ip4")
+            Arg::new("ip")
+                .long("ip")
                 .short('i')
                 .help("Set an IPv4 address")
         )
