@@ -113,7 +113,8 @@ fn build() -> Command {
             Arg::new("ip")
                 .long("ip")
                 .short('i')
-                .help("Set an ip address")
+                .action(clap::ArgAction::Append)
+                .help("Set an IPv4 or IPv6 address (can be used multiple times)")
         )
         .arg(
             Arg::new("seq")
@@ -128,16 +129,32 @@ fn build() -> Command {
                 .help("Set a tcp port")
         )
         .arg(
+            Arg::new("tcp6-port")
+                .long("tcp6-port")
+                .help("Set a TCP port for IPv6")
+        )
+        .arg(
             Arg::new("udp-port")
                 .long("udp-port")
                 .short('u')
                 .help("Set an udp port")
         )
         .arg(
+            Arg::new("udp6-port")
+                .long("udp6-port")
+                .help("Set a UDP port for IPv6")
+        )
+        .arg(
             Arg::new("quic-port")
                 .long("quic-port")
                 .short('q')
                 .help("Set a quic port")
+        )
+        .arg(
+            Arg::new("quic6-port")
+                .long("quic6-port")
+                .short('Q')
+                .help("Set an IPv6 QUIC port")
         )
         .arg(
             Arg::new("eth2")

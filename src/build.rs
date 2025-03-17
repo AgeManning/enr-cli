@@ -41,18 +41,26 @@ pub fn build(matches: &clap::ArgMatches) -> Result<(), &'static str> {
     if let Some(seq) = matches.get_one::<String>("seq") {
         enr_builder.seq(seq.parse::<u64>().map_err(|_| "Invalid sequence number")?);
     }
-    if let Some(ip) = matches.get_one::<String>("ip") {
-        enr_builder.ip(ip
-            .parse::<std::net::IpAddr>()
-            .map_err(|_| "Invalid ip address")?);
+    if let Some(ips) = matches.get_many::<String>("ip") {
+        for ip in ips {
+            enr_builder.ip(ip
+                .parse::<std::net::IpAddr>()
+                .map_err(|_| "Invalid ip address")?);
+        }
     }
 
     if let Some(tcp) = matches.get_one::<String>("tcp-port") {
         enr_builder.tcp4(tcp.parse::<u16>().map_err(|_| "Invalid tcp port")?);
     }
+    if let Some(tcp6) = matches.get_one::<String>("tcp6-port") {
+        enr_builder.tcp6(tcp6.parse::<u16>().map_err(|_| "Invalid tcp6 port")?);
+    }
 
     if let Some(udp) = matches.get_one::<String>("udp-port") {
         enr_builder.udp4(udp.parse::<u16>().map_err(|_| "Invalid udp port")?);
+    }
+    if let Some(udp6) = matches.get_one::<String>("udp6-port") {
+        enr_builder.udp6(udp6.parse::<u16>().map_err(|_| "Invalid udp6 port")?);
     }
 
     if let Some(quic) = matches.get_one::<String>("quic-port") {
@@ -61,6 +69,16 @@ pub fn build(matches: &clap::ArgMatches) -> Result<(), &'static str> {
             &quic
                 .parse::<u16>()
                 .map_err(|_| "Invalid quic port")?
+                .to_be_bytes(),
+        );
+    }
+
+    if let Some(quic6) = matches.get_one::<String>("quic6-port") {
+        enr_builder.add_value(
+            crate::enr_ext::QUIC6_ENR_KEY,
+            &quic6
+                .parse::<u16>()
+                .map_err(|_| "Invalid quic6 port")?
                 .to_be_bytes(),
         );
     }
