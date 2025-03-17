@@ -66,3 +66,22 @@ Eth2 Field:
 Known multiaddrs:
 /ip4/176.9.51.216/udp/23500
 ```
+
+## Example for Building
+
+```bash
+enr-cli build --ip 10.111.10.10 --seq-no 10 --udp-port 20
+Built ENR: enr:-IK4QHpZrFKDes_vGDdprEpgEZeHus3T6RWDNkcJGYLz6BsXbWBp9ERL7KbwkUSqcI5LGd5hFwFIxBz-vWS_yGYcWlUKgmlkgnY0gmlwhApvCgqJc2VjcDI1NmsxoQJSpOGR0Oho7pAYdanlY3HLxBoS0-CCvxbtq-K5mhkwZ4N1ZHAU
+
+Private Key: ede0b71d54314a1dc203adb5d682ab13644d6089153d4e322ad0a32dad844bde
+
+ENR Read:
+Sequence No:10
+NodeId: 15b21a364727e0bf6713375dfebf0ab6ad3380a3954a660fb3a8288d2f461a2a
+EnodeId: enode://15b21a364727e0bf6713375dfebf0ab6ad3380a3954a660fb3a8288d2f461a2a@10.111.10.10?discport=20
+Libp2p PeerId: 16Uiu2HAkzzHETpJ2rpT819PhYGkZMVxMUn8NqA14rSLJj5W2m1LA
+ipv4:10.111.10.10
+v4_udp:20
+Known multiaddrs:
+/ip4/10.111.10.10/udp/20
+```
