@@ -27,7 +27,7 @@
 //! SUBCOMMANDS:
 //!     build    Builds an ENR
 //!     help     Print this message or the help of the given subcommand(s)
-//!     read     Reads and ENR
+//!     read     Reads an ENR
 //!
 //!
 //! ## Example
@@ -125,13 +125,19 @@ fn build() -> Command {
             Arg::new("tcp-port")
                 .long("tcp-port")
                 .short('p')
-                .help("Set an tcp port")
+                .help("Set a tcp port")
         )
         .arg(
             Arg::new("udp-port")
                 .long("udp-port")
                 .short('u')
                 .help("Set an udp port")
+        )
+        .arg(
+            Arg::new("quic-port")
+                .long("quic-port")
+                .short('q')
+                .help("Set a quic port")
         )
         .arg(
             Arg::new("eth2")

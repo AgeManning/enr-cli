@@ -55,6 +55,16 @@ pub fn build(matches: &clap::ArgMatches) -> Result<(), &'static str> {
         enr_builder.udp4(udp.parse::<u16>().map_err(|_| "Invalid udp port")?);
     }
 
+    if let Some(quic) = matches.get_one::<String>("quic-port") {
+        enr_builder.add_value(
+            crate::enr_ext::QUIC_ENR_KEY,
+            &quic
+                .parse::<u16>()
+                .map_err(|_| "Invalid quic port")?
+                .to_be_bytes(),
+        );
+    }
+
     if let Some(eth2) = matches.get_one::<String>("eth2") {
         let eth2_bytes = hex::decode(eth2).map_err(|_| "Invalid eth2 hex bytes")?;
         EnrForkId::from_ssz_bytes(&eth2_bytes).map_err(|_| "Invalid eth2 ssz bytes")?;
