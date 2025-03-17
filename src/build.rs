@@ -1,5 +1,6 @@
 //! Builds an ENR from CLI params
 // use super::Enr;
+use crate::enr_ext::{QUIC6_ENR_KEY, QUIC_ENR_KEY};
 use crate::eth2_ext::EnrForkId;
 use enr::CombinedKey;
 use ssz::Decode;
@@ -65,7 +66,7 @@ pub fn build(matches: &clap::ArgMatches) -> Result<(), &'static str> {
 
     if let Some(quic) = matches.get_one::<String>("quic-port") {
         enr_builder.add_value(
-            crate::enr_ext::QUIC_ENR_KEY,
+            QUIC_ENR_KEY,
             &quic
                 .parse::<u16>()
                 .map_err(|_| "Invalid quic port")?
@@ -75,7 +76,7 @@ pub fn build(matches: &clap::ArgMatches) -> Result<(), &'static str> {
 
     if let Some(quic6) = matches.get_one::<String>("quic6-port") {
         enr_builder.add_value(
-            crate::enr_ext::QUIC6_ENR_KEY,
+            QUIC6_ENR_KEY,
             &quic6
                 .parse::<u16>()
                 .map_err(|_| "Invalid quic6 port")?
